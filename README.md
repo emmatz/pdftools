@@ -18,3 +18,24 @@ the requested modification (merge, decrypt, rotate, etc).
 **== CRACK PDF.** It is needed a dictionary to crack the PDF, if the password is found, it will be shown on the screen.
 
 **== ROTATE PDF.** You can rotete a scpecific page of the PDF in clockwise sense.
+
+## Usage
+
+```bash
+python pdftools.py -h
+
+usage: pdftools.py [-h] [-d data data | -e file | -c file file | -s file] [-V]
+
+Manipulate PDF files.
+
+options:
+  -h, --help     show this help message and exit
+  -d data data   Decrypt PDF file.
+                 -d [PDF_FILE] [PASSWORD]
+  -e file        Encrypt PDF file.
+  -c file file   Crack the PDF's password.
+                 -c [PDF_FILE] [Dictionary]
+  -s file        Split PDF file.
+  -V, --version  show program's version number and exit
+
+```
