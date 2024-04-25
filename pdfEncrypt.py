@@ -5,6 +5,7 @@ import getpass
 import secrets
 import string
 from pypdf import PdfReader, PdfWriter
+from pdfChecks import ValidPDF
 
 
 class Password:
@@ -62,5 +63,5 @@ class Encrypt:
 		# Add a password to the new PDF
 		f_write.encrypt(self.password, algorithm="AES-256")
 
-		with open("encrypted-" + self.pdf_file, "wb") as f:
-			f_write.write(f)
+		custom_writer = ValidPDF()
+		custom_writer.write_file(self.pdf_file, data=f_write, of="encrypted-")

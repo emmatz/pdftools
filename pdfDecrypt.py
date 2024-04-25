@@ -2,7 +2,7 @@
 # Description: Decrypt a PDF file
 
 from pypdf import PdfReader, PdfWriter
-
+from pdfChecks import ValidPDF
 
 class Decrypt:
     """Decrypt PDF file using a known password"""
@@ -27,8 +27,8 @@ class Decrypt:
                     f_write.add_page(page)
 
                 # Save the new PDF to a file
-                with open("decrypted-" + self.pdf_file, "wb") as f:
-                    f_write.write(f)
+                custom_writer = ValidPDF()
+                custom_writer.write_file(self.pdf_file, data=f_write, of="decrypted-")
                 print(f'PDF decrypted!')
             else:
                 print("PDF file has no password!")

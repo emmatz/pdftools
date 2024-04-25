@@ -20,7 +20,9 @@ class Crack:
                         print(f"\rAttempts: {cnt}", end="", flush=True)
                         word = word.strip()
                         if pdf.decrypt(word):
-                            print(f"\nPassword cracked: {word}")
-                print(f"\nPassword not found!")
+                            print(f"\nPassword found: {word}")
+                            break
+                    else:
+                        print(f"\nPassword not found!")
             else:
-                print(f"[ {self.pdf_file} ] Not encrypted file")
+                print(f"{self.pdf_file} Not encrypted file")
