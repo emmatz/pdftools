@@ -27,7 +27,7 @@ class Menu:
         group.add_argument('-c', metavar="file", nargs=2, help='Crack the PDF\'s password.\n'
                                                                '-c [PDF_FILE] [Dictionary]')
         group.add_argument('-s', metavar="file", help='Split PDF file.')
-        menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.0]')
+        menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.1]')
 
         return menu.parse_args()
 
