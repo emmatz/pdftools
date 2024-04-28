@@ -9,6 +9,8 @@ from pdfDecrypt import Decrypt
 from pdfSplit import PdfSplit
 from pdfCrack import Crack
 from pdfChecks import ValidPDF
+from pdfMerge import Merger
+import re
 
 class Menu:
     def __init__(self):
@@ -21,11 +23,13 @@ class Menu:
 
         # Mutual exclusive
         group = menu.add_mutually_exclusive_group()
+        group.add_argument('-c', metavar="file", nargs=2, help='Crack the PDF\'s password.\n'
+                                                               '-c [PDF_FILE] [Dictionary]')
         group.add_argument('-d', metavar="data", nargs=2, help="Decrypt PDF file.\n"
                                                "-d [PDF_FILE] [PASSWORD]")
         group.add_argument('-e', metavar="file", help='Encrypt PDF file.')
-        group.add_argument('-c', metavar="file", nargs=2, help='Crack the PDF\'s password.\n'
-                                                               '-c [PDF_FILE] [Dictionary]')
+        group.add_argument('-m', metavar="file", nargs="*", help='Merge PDF files.\n'
+                                                                 '[PDF_FILES] [PDF_MERGED]')
         group.add_argument('-s', metavar="file", help='Split PDF file.')
         menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.1]')
 
@@ -62,6 +66,35 @@ class PdfTools:
             pdf_crack = Crack(pdf_file, dict)
             pdf_crack.crack()
 
+    def merge(self, pdf_list):
+        if len(pdf_list) < 2:
+            print("Check help menu for details.")
+            exit(4)
+
+        pattern_expanded = []
+        pdf = ValidPDF()
+
+        # As Windows OS does not expand the wildcards automatically, we need to create a temporal file list
+        # with absolute file paths
+        for _ in pdf_list:
+            if re.search(r'[\*\?\[\]]', _):
+                pattern_expanded.append(pdf.is_glob(_))
+            else:
+                pattern_expanded.append(_)
+        flat_list = [item for sublist in pattern_expanded for item in (sublist if isinstance(sublist, list) else [sublist])]
+        del pattern_expanded
+
+        # Checking if arguments are valid
+        for file in flat_list[:len(flat_list)-1]:
+            if not pdf.is_pdf(file):
+                exit(2)
+            if pdf.is_encrypted(file):
+                print(f'Encrypted file: {file}')
+                exit(3)
+
+        merged = Merger(flat_list[:len(flat_list)-1], flat_list[-1])
+        merged.merger()
+
     def check(self, file):
         '''Validate the PDF file'''
         pdf_file = ValidPDF()
@@ -77,6 +110,8 @@ class PdfTools:
                 self.split(self.menu_instance.args.s)
             if self.menu_instance.args.c:
                 self.crack(self.menu_instance.args.c[0], self.menu_instance.args.c[1])
+            if self.menu_instance.args.m:
+                self.merge(self.menu_instance.args.m)
         except (KeyboardInterrupt, EOFError, FileNotFoundError) as e:
             print(f'\n{type(e).__name__}')
             # print(e)
