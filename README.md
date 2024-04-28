@@ -24,18 +24,21 @@ the requested modification (merge, decrypt, rotate, etc).
 ```bash
 python pdftools.py -h
 
-usage: pdftools.py [-h] [-d data data | -e file | -c file file | -s file] [-V]
+usage: pdftools.py [-h] [-c file file | -d data data | -e file | -m [file ...] | -s file] [-V]
 
 Manipulate PDF files.
 
 options:
   -h, --help     show this help message and exit
+  -c file file   Crack the PDF's password.
+                 -c [PDF_FILE] [Dictionary]
   -d data data   Decrypt PDF file.
                  -d [PDF_FILE] [PASSWORD]
   -e file        Encrypt PDF file.
-  -c file file   Crack the PDF's password.
-                 -c [PDF_FILE] [Dictionary]
+  -m [file ...]  Merge PDF files.
+                 [PDF_FILES] [PDF_MERGED]
   -s file        Split PDF file.
   -V, --version  show program's version number and exit
+
 
 ```
