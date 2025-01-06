@@ -10,6 +10,7 @@ from pdfSplit import PdfSplit
 from pdfCrack import Crack
 from pdfChecks import ValidPDF
 from pdfMerge import Merger
+from pdfGetInfo import GeneralInformation
 import re
 
 class Menu:
@@ -31,7 +32,13 @@ class Menu:
         group.add_argument('-m', metavar="file", nargs="*", help='Merge PDF files.\n'
                                                                  '[PDF_FILES] [PDF_MERGED]')
         group.add_argument('-s', metavar="file", help='Split PDF file.')
-        menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.1]')
+        group.add_argument('-gm', metavar="file", help="Get metadata.\n"
+                                                      "-gm [PDF_FILE]")
+        group.add_argument('-sp', metavar="file", help="Get size of specific page.\n"
+                                                      "-p [PDF_FILE] [Page_Number (Default=1)]")
+        group.add_argument('-tp', metavar="file", help="Get total number of pages.\n"
+                                                       "-tp [PDF_FILE]")
+        menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.2]')
 
         return menu.parse_args()
 
@@ -65,6 +72,27 @@ class PdfTools:
         if self.check(pdf_file):
             pdf_crack = Crack(pdf_file, dict)
             pdf_crack.crack()
+
+    def metadata(self, pdf_file):
+        if self.check(pdf_file):
+            pdf_metadata = GeneralInformation(pdf_file)
+            pdf_metadata.get_metadata()
+
+    def page_size(self, pdf_file, page):
+        if self.check(pdf_file):
+            try:
+                if page <= 0:
+                    print(f"Page {page} doesn't exits.")
+                    return
+                psize = GeneralInformation(pdf_file)
+                psize.page_size(page)
+            except IndexError:
+                print(f"Page {page} doesn't exits.")
+
+    def total_page(self, pdf_file):
+        if self.check(pdf_file):
+            total = GeneralInformation(pdf_file)
+            print(f"Number of pages: {total.total_pages()}")
 
     def merge(self, pdf_list):
         if len(pdf_list) < 2:
@@ -112,6 +140,12 @@ class PdfTools:
                 self.crack(self.menu_instance.args.c[0], self.menu_instance.args.c[1])
             if self.menu_instance.args.m:
                 self.merge(self.menu_instance.args.m)
+            if self.menu_instance.args.gm:
+                self.metadata(self.menu_instance.args.gm)
+            if self.menu_instance.args.sp:
+                self.page_size(self.menu_instance.args.sp, 1)
+            if self.menu_instance.args.tp:
+                self.total_page(self.menu_instance.args.tp)
         except (KeyboardInterrupt, EOFError, FileNotFoundError) as e:
             print(f'\n{type(e).__name__}')
             # print(e)
