@@ -34,7 +34,7 @@ class Menu:
         group.add_argument('-s', metavar="file", help='Split PDF file.')
         group.add_argument('-gm', metavar="file", help="Get metadata.\n"
                                                       "-gm [PDF_FILE]")
-        group.add_argument('-sp', metavar="file", help="Get size of specific page.\n"
+        group.add_argument('-sp', metavar=("file", "page_num"), nargs='+', help="Get size of specific page.\n"
                                                       "-p [PDF_FILE] [Page_Number (Default=1)]")
         group.add_argument('-tp', metavar="file", help="Get total number of pages.\n"
                                                        "-tp [PDF_FILE]")
@@ -143,7 +143,12 @@ class PdfTools:
             if self.menu_instance.args.gm:
                 self.metadata(self.menu_instance.args.gm)
             if self.menu_instance.args.sp:
-                self.page_size(self.menu_instance.args.sp, 1)
+                if len(self.menu_instance.args.sp) == 1:
+                    self.page_size(self.menu_instance.args.sp[0], 1)
+                elif len(self.menu_instance.args.sp) == 2:
+                    self.page_size(self.menu_instance.args.sp[0], int(self.menu_instance.args.sp[1]))
+                else:
+                    print("-sp accepts at most 2 arguments: [PDF_FILE] [Page_Number]")
             if self.menu_instance.args.tp:
                 self.total_page(self.menu_instance.args.tp)
         except (KeyboardInterrupt, EOFError, FileNotFoundError) as e:
