@@ -11,6 +11,7 @@ from pdfCrack import Crack
 from pdfChecks import ValidPDF
 from pdfMerge import Merger
 from pdfGetInfo import GeneralInformation
+from pdfModify import Transform
 import re
 
 class Menu:
@@ -38,6 +39,30 @@ class Menu:
                                                       "-p [PDF_FILE] [Page_Number (Default=1)]")
         group.add_argument('-tp', metavar="file", help="Get total number of pages.\n"
                                                        "-tp [PDF_FILE]")
+        group.add_argument('-scale-factor', metavar=("[pdf_file]", "[page]","[factor_rate]"), nargs=3,
+                           help="Scale a PDF page by factor.\n"
+                                " -scale-factor [PDF_FILE] [PAGE] [RATIO]\n"
+                                " -scale-factor test.pdf 3 0.5")
+        group.add_argument('-scale-wh', metavar=("[pdf_file]", "[page]", "[width]", "[height]"), nargs=4,
+                           help="Scale a PDF page specifying WIDTH and HEIGHT values.\n"
+                                " -scale-wh [PDF_FILE] [PAGE] [WIDTH] [HEIGHT]\n"
+                                " -scale-wh test.pdf 3 850.5 950.0")
+        group.add_argument('-resize',
+                           metavar=("[pdf_file]","[page]","[left_size]","[bottom_size]","[right_size]","[top_size]"),
+                           nargs=6,
+                           help="Resize manually a page. You need to specify values of Mediabox, Cropbox, Trimbox, "
+                                "Bleedbox and Artbox.\nAll of them will have same values for LEFT, BOTTOM, "
+                                "RIGHT and TOP\n"
+                                "Mediabox: Defines the total area of the page, including all visible and invisible "
+                                "content.\n\tIt is the largest box and represents the dimensions of the document.\n"
+                                "Cropbox: Defines the visible area of the page.\n"
+                                "\tOnly the content within the Cropbox is visible when the PDF is displayed or printed."
+                                "\n\tIt is a sub-box of the Mediabox.\n"
+                                "Trimbox: Specifies the boundaries of the page after trimming, typically for printing."
+                                "\n\tIt is commonly used to adjust margins for production purposes.\n"
+                                "Bleedbox: Defines the bleed area.\n\tIt is used when the page content needs to "
+                                "extend beyond the edge to ensure there\n\tare no white borders after trimming.\n"
+                                "Artbox: Defines the area that contains the visual content or layout of the page.")
         menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.2]')
 
         return menu.parse_args()
@@ -128,6 +153,10 @@ class PdfTools:
         pdf_file = ValidPDF()
         return pdf_file.is_pdf(file)
 
+    def scaleFactor(self, pdf_file):
+        if self.check(pdf_file):
+            Transform.scale(pdf_file, )
+
     def run(self):
         try:
             if self.menu_instance.args.e:
@@ -151,6 +180,30 @@ class PdfTools:
                     print("-sp accepts at most 2 arguments: [PDF_FILE] [Page_Number]")
             if self.menu_instance.args.tp:
                 self.total_page(self.menu_instance.args.tp)
+            if self.menu_instance.args.scale_factor:
+                if self.check(self.menu_instance.args.scale_factor[0]):
+                    Transform.scale(input_pdf=self.menu_instance.args.scale_factor[0],
+                                    page_number=int(self.menu_instance.args.scale_factor[1]),
+                                    scale_factor=float(self.menu_instance.args.scale_factor[2]))
+            if self.menu_instance.args.scale_wh:
+                if self.check(self.menu_instance.args.scale_wh[0]):
+                    Transform.scale(input_pdf=self.menu_instance.args.scale_wh[0],
+                                    page_number=int(self.menu_instance.args.scale_wh[1]),
+                                    new_width=float(self.menu_instance.args.scale_wh[2]),
+                                    new_height=float(self.menu_instance.args.scale_wh[3]))
+            if self.menu_instance.args.resize:
+                print(f'HOLA:\n{self.menu_instance.args}\n'
+                      f'{self.menu_instance.args.resize}\n'
+                      f'{self.menu_instance.args.resize[0]} {self.menu_instance.args.resize[1]}\n'
+                      f'{self.menu_instance.args.resize[2]} {self.menu_instance.args.resize[3]}\n'
+                      f'{self.menu_instance.args.resize[4]} {self.menu_instance.args.resize[5]}')
+                if self.check(self.menu_instance.args.resize[0]):
+                    Transform.resize(input_pdf=self.menu_instance.args.resize[0],
+                                     page_number=int(self.menu_instance.args.resize[1]),
+                                     left_pt=float(self.menu_instance.args.resize[2]),
+                                     bottom_pt=float(self.menu_instance.args.resize[3]),
+                                     right_pt=float(self.menu_instance.args.resize[4]),
+                                     top_pt=float(self.menu_instance.args.resize[5]))
         except (KeyboardInterrupt, EOFError, FileNotFoundError) as e:
             print(f'\n{type(e).__name__}')
             # print(e)
