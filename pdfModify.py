@@ -21,29 +21,6 @@ class Transform:
             raise PermissionError(f"The file '{input_pdf}' is password-protected and cannot be processed.")
 
     @staticmethod
-    def _write_output_pdf(input_pdf, writer, prefix):
-        '''
-        Writes the output PDF to the same directory as the input with a given prefix.
-
-        :param input_pdf: PDF file
-        :type input_pdf: str
-        :param writer: PdfWriter object with the modified PDF.
-        :type writer: PdfWriter
-        :param prefix: Prefix for the output file name.
-        :type prefix: str
-        :return: Path to the saved PDF file.
-        :rtype: str
-        '''
-
-        output_file = os.path.join(os.path.dirname(input_pdf), f'{prefix}-{os.path.basename(input_pdf)}')
-        with open(output_file, "wb") as output_file:
-            writer.write(output_file)
-
-        print(f"New PDF saved: {output_file.name}")
-
-        return output_file
-
-    @staticmethod
     def scale(input_pdf, page_number, scale_factor=None, new_width=None, new_height=None):
         '''
         Scale a specific page on a PDF file.
@@ -62,9 +39,6 @@ class Transform:
         :rtype: str
         '''
 
-        # if ValidPDF().is_encrypted(input_pdf):
-        #     print(f"File {input_pdf} is protected.")
-        #     exit(7)
         Transform._check_encryption(input_pdf)
 
         reader = PdfReader(input_pdf)
@@ -86,10 +60,7 @@ class Transform:
             # Add the page to the final PDF
             writer.add_page(page)
 
-        # with open(os.path.join(os.path.dirname(input_pdf), "scaled-" + os.path.basename(input_pdf)), "wb") as f:
-        #     writer.write(f)
         return ValidPDF().write_file(input_pdf, writer, prefix="scaled")
-        # return  Transform._write_output_pdf(input_pdf, writer, prefix="scaled")
 
     @staticmethod
     def resize(input_pdf, page_number, left_pt=0, bottom_pt=0, right_pt=0, top_pt=0):
@@ -158,11 +129,7 @@ class Transform:
         # Storing page modified
         writer.add_page(page)
 
-        # with open(os.path.join(os.path.dirname(input_pdf), "resized-page-" + str(page_number) + "-"
-        #                                                    + os.path.basename(input_pdf)), "wb") as f:
-        #     writer.write(f)
         return ValidPDF().write_file(input_pdf, writer, prefix=f'resized-page-{page_number}')
-        # return Transform._write_output_pdf(input_pdf, writer, prefix=f'resized-page-{page_number}')
 
     @staticmethod
     def rotate(input_file, page_number, degrees=0):
