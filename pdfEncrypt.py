@@ -64,4 +64,4 @@ class Encrypt:
 		f_write.encrypt(self.password, algorithm="AES-256")
 
 		custom_writer = ValidPDF()
-		custom_writer.write_file(self.pdf_file, data=f_write, of="encrypted-")
+		custom_writer.write_file(self.pdf_file, data=f_write, prefix="encrypted")

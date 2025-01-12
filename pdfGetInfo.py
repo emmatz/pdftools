@@ -49,7 +49,7 @@ class GeneralInformation:
 
         def box_info(box_name, box):
             """Helper function to print box details."""
-            print(f'{box_name.capitalize()}:')
+            print(f'{box_name.capitalize()}.')
             print(f'\tLEFT:   {box.left}\n'
                   f'\tRIGHT:  {box.right}\n'
                   f'\tTOP:    {box.top}\n'

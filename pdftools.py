@@ -25,30 +25,25 @@ class Menu:
 
         # Mutual exclusive
         group = menu.add_mutually_exclusive_group()
-        group.add_argument('-c', metavar="file", nargs=2, help='Crack the PDF\'s password.\n'
-                                                               '-c [PDF_FILE] [Dictionary]')
-        group.add_argument('-d', metavar="data", nargs=2, help="Decrypt PDF file.\n"
-                                               "-d [PDF_FILE] [PASSWORD]")
-        group.add_argument('-e', metavar="file", help='Encrypt PDF file.')
-        group.add_argument('-m', metavar="file", nargs="*", help='Merge PDF files.\n'
+        group.add_argument('-c', metavar=("[file]", "[dictionary]"), nargs=2,
+                           help="Crack the PDF's password.")
+        group.add_argument('-d', metavar=("[file]", "[password]"), nargs=2, help="Decrypt PDF file.")
+        group.add_argument('-e', metavar="[file]", help='Encrypt PDF file.')
+        group.add_argument('-m', metavar=("file"), nargs="*", help='Merge PDF files.\n'
                                                                  '[PDF_FILES] [PDF_MERGED]')
-        group.add_argument('-s', metavar="file", help='Split PDF file.')
-        group.add_argument('-gm', metavar="file", help="Get metadata.\n"
-                                                      "-gm [PDF_FILE]")
-        group.add_argument('-sp', metavar=("file", "page_num"), nargs='+', help="Get size of specific page.\n"
-                                                      "-p [PDF_FILE] [Page_Number (Default=1)]")
-        group.add_argument('-tp', metavar="file", help="Get total number of pages.\n"
-                                                       "-tp [PDF_FILE]")
-        group.add_argument('-scale-factor', metavar=("[pdf_file]", "[page]","[factor_rate]"), nargs=3,
+        group.add_argument('-s', metavar="[file]", help='Split PDF file.')
+        group.add_argument('-gm', metavar="[file]", help="Get metadata.")
+        group.add_argument('-sp', metavar=("file", "page_num"), nargs='+',
+                           help="Get size of specific page. Default page 1.")
+        group.add_argument('-tp', metavar="[file]", help="Get total number of pages.")
+        group.add_argument('-scale-factor', metavar=("[file]", "[page]","[factor_rate]"), nargs=3,
                            help="Scale a PDF page by factor.\n"
-                                " -scale-factor [PDF_FILE] [PAGE] [RATIO]\n"
                                 " -scale-factor test.pdf 3 0.5")
-        group.add_argument('-scale-wh', metavar=("[pdf_file]", "[page]", "[width]", "[height]"), nargs=4,
+        group.add_argument('-scale-wh', metavar=("[file]", "[page]", "[width]", "[height]"), nargs=4,
                            help="Scale a PDF page specifying WIDTH and HEIGHT values.\n"
-                                " -scale-wh [PDF_FILE] [PAGE] [WIDTH] [HEIGHT]\n"
                                 " -scale-wh test.pdf 3 850.5 950.0")
         group.add_argument('-resize',
-                           metavar=("[pdf_file]","[page]","[left_size]","[bottom_size]","[right_size]","[top_size]"),
+                           metavar=("[file]","[page]","[left_size]","[bottom_size]","[right_size]","[top_size]"),
                            nargs=6,
                            help="Resize manually a page. You need to specify values of Mediabox, Cropbox, Trimbox, "
                                 "Bleedbox and Artbox.\nAll of them will have same values for LEFT, BOTTOM, "
@@ -63,6 +58,9 @@ class Menu:
                                 "Bleedbox: Defines the bleed area.\n\tIt is used when the page content needs to "
                                 "extend beyond the edge to ensure there\n\tare no white borders after trimming.\n"
                                 "Artbox: Defines the area that contains the visual content or layout of the page.")
+        group.add_argument('-rotate', metavar=("[file]", "[page]", "[degrees]"), nargs=3,
+                           help="Rotate a page of a PDF file.\n"
+                                "It is a clockwise rotation of the page by multiples of 90 degrees.")
         menu.add_argument('-V', '--version', action='version', version='%(prog)s  [version 2.2]')
 
         return menu.parse_args()
@@ -107,12 +105,13 @@ class PdfTools:
         if self.check(pdf_file):
             try:
                 if page <= 0:
-                    print(f"Page {page} doesn't exits.")
-                    return
+                    raise IndexError(f"Page {page} doesn't exist.")
+                    # print(f"Page {page} doesn't exist.")
+                    # return
                 psize = GeneralInformation(pdf_file)
                 psize.page_size(page)
             except IndexError:
-                print(f"Page {page} doesn't exits.")
+                print(f"Page {page} doesn't exist.")
 
     def total_page(self, pdf_file):
         if self.check(pdf_file):
@@ -121,8 +120,9 @@ class PdfTools:
 
     def merge(self, pdf_list):
         if len(pdf_list) < 2:
-            print("Check help menu for details.")
-            exit(4)
+            raise ValueError(f'Check help menu for details.')
+            # print("Check help menu for details.")
+            # exit(4)
 
         pattern_expanded = []
         pdf = ValidPDF()
@@ -192,11 +192,6 @@ class PdfTools:
                                     new_width=float(self.menu_instance.args.scale_wh[2]),
                                     new_height=float(self.menu_instance.args.scale_wh[3]))
             if self.menu_instance.args.resize:
-                print(f'HOLA:\n{self.menu_instance.args}\n'
-                      f'{self.menu_instance.args.resize}\n'
-                      f'{self.menu_instance.args.resize[0]} {self.menu_instance.args.resize[1]}\n'
-                      f'{self.menu_instance.args.resize[2]} {self.menu_instance.args.resize[3]}\n'
-                      f'{self.menu_instance.args.resize[4]} {self.menu_instance.args.resize[5]}')
                 if self.check(self.menu_instance.args.resize[0]):
                     Transform.resize(input_pdf=self.menu_instance.args.resize[0],
                                      page_number=int(self.menu_instance.args.resize[1]),
@@ -204,8 +199,13 @@ class PdfTools:
                                      bottom_pt=float(self.menu_instance.args.resize[3]),
                                      right_pt=float(self.menu_instance.args.resize[4]),
                                      top_pt=float(self.menu_instance.args.resize[5]))
-        except (KeyboardInterrupt, EOFError, FileNotFoundError) as e:
-            print(f'\n{type(e).__name__}')
+            if self.menu_instance.args.rotate:
+                if self.check(self.menu_instance.args.rotate[0]):
+                    Transform.rotate(input_file=self.menu_instance.args.rotate[0],
+                                     page_number=int(self.menu_instance.args.rotate[1]),
+                                     degrees=int(self.menu_instance.args.rotate[2]))
+        except (KeyboardInterrupt, EOFError, FileNotFoundError, ValueError, IndexError, PermissionError) as e:
+            print(f'{type(e).__name__}: {e}')
             # print(e)
 
 

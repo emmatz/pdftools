@@ -28,9 +28,10 @@ class Decrypt:
 
                 # Save the new PDF to a file
                 custom_writer = ValidPDF()
-                custom_writer.write_file(self.pdf_file, data=f_write, of="decrypted-")
+                custom_writer.write_file(self.pdf_file, data=f_write, prefix="decrypted")
                 print(f'PDF decrypted!')
             else:
                 print("PDF file has no password!")
         except:
-            print("Check the password, file not decrypted.")
+            raise ValueError(f'Check the password, file not decrypted.')
+            # print("Check the password, file not decrypted.")
