@@ -42,7 +42,7 @@ class Merger:
 
         # if merged file's name exist, raise an error and exit
         if os.path.isfile(self.merged_file):
-            print(f'{self.merged_file} Already exits, nothing changed.')
+            print(f'{self.merged_file} Already exist, nothing changed.')
             exit(5)
 
         # Checking if the path is specified

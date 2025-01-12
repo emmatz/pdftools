@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pdftool",
-    version="2.1",
+    version="2.2",
     packages=find_packages(),
     entry_points={
         "console_scripts": [
