@@ -16,7 +16,7 @@ class PdfSplit:
             for _ in range(len(f_reader.pages)):
                 f_write = PdfWriter()
                 f_write.add_page(f_reader.pages[_])
-                custom_writer.write_file(self.pdf_file, data=f_write, of=f"split-page-{_+1}-")
+                custom_writer.write_file(self.pdf_file, data=f_write, prefix=f"split-page-{_+1}-")
             print(f"{self.pdf_file} has been split out")
         else:
             print(f"{self.pdf_file} File encrypted, not possible to split it out.")
